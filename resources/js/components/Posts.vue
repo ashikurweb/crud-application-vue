@@ -1,122 +1,98 @@
 <template>
-    <div class="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-        <h2 class="text-4xl font-bold mb-6 text-gray-800 text-center">
-            Create Post
-        </h2>
+    <div class="max-w-6xl mx-auto mt-8 py-10 px-4">
+    <h2 class="text-4xl font-extrabold text-gray-800 mb-8 text-center tracking-wide">
+        All Posts
+    </h2>
 
-        <form class="space-y-4" @submit.prevent="savePost">
-            <!-- Title Field -->
-            <div>
-                <label for="title" class="block text-gray-700 font-medium mb-1"
-                    >Title</label
-                >
-                <input
-                    type="text"
-                    id="title"
-                    v-model="form.title"
-                    placeholder="Enter post title"
-                    :class="{
-                        'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-violet-500 focus:outline-none transition-all duration-300': true,
-                        'border-red-500': errors.title
-                    }"
-                />
-                <p v-if="errors.title" class="text-red-500 text-sm mt-1">{{ errors.title[0] }}</p>
-            </div>
-
-            <!-- Content Field -->
-            <div>
-                <label
-                    for="content"
-                    class="block text-gray-700 font-medium mb-1"
-                    >Content</label
-                >
-                <textarea
-                    id="content"
-                    v-model="form.content"
-                    placeholder="Enter post content"
-                    rows="4"
-                    :class="{
-                        'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-violet-500 focus:outline-none transition-all duration-300': true,
-                        'border-red-500': errors.content
-                    }"
-                ></textarea>
-                <p v-if="errors.content" class="text-red-500 text-sm mt-1">{{ errors.content[0] }}</p>
-
-            </div>
-
-            <!-- Submit Button -->
-            <button
-                type="submit"
-                :class="{
-                    'w-full py-3 bg-violet-500 text-white font-semibold rounded-md hover:bg-violet-600 transition-all cursor-pointer': !editMode,
-                    'w-full py-3 bg-amber-500 text-white font-semibold rounded-md hover:bg-amber-600 transition-all cursor-pointer': editMode
-                }"
-            >
-                {{ editMode ? 'Update Post' : 'Create Post' }}
-            </button>
-        </form>
-    </div>
-
-    <!-- Post Grid -->
-    <div class="max-w-6xl mx-auto mt-8 py-10">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
-            All Posts
-        </h2>
-
-        <div
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+    <!-- Create Button -->
+    <div class="mb-6">
+        <button
+            @click="navigateToCreatePost"
+            class="bg-gradient-to-r cursor-pointer from-teal-500 to-green-500 text-white font-semibold py-3 px-5 rounded-lg hover:shadow-lg transition-shadow duration-300"
         >
-            <div
-                v-for="post in posts.data"
-                :key="post.id"
-                class="bg-white p-6 border border-slate-200 rounded-xl shadow-md hover:shadow-2xl transform-shadow duration-300 flex flex-col justify-between"
-            >
-                <div>
-                    <h2 class="text-lg font-semibold mb-2 text-gray-900">
-                        {{ post.title }}
-                    </h2>
-                    <p class="text-gray-700 mb-4">
-                        {{ limitText(post.content, 30) }}
-                    </p>
-                </div>
-
-                <!-- Fixed Button Group at Bottom -->
-                <div
-                    class="mt-auto flex justify-between gap-4 pt-4 border-t border-gray-200"
-                >
-                    <!-- Edit Button -->
-                    <button
-                        class="bg-amber-100 text-amber-500 py-2 px-4 font-semibold rounded-md hover:bg-amber-600 hover:text-white transition-all cursor-pointer" @click="editPost(post)"
-                    >
-                        <i class="fa fa-edit"></i> Edit
-                    </button>
-
-                    <!-- Delete Button -->
-                    <button
-                        class="bg-red-100 text-red-500 py-2 px-4 font-semibold rounded-md hover:bg-red-600 hover:text-white transition-all cursor-pointer" @click="deletePost(post.id)"
-                    >
-                        <i class="fa fa-trash"></i> Delete
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- pagination -->
-        <div if="posts.links" class="flex justify-center items-center space-x-2 mt-6">
-            <button v-for="(link,index) in posts.links" 
-                :key="index"
-                @click="fetchPosts(link.url)"
-                :disabled="!link.url"
-                class="px-4 py-2 rounded-md"
-                :class="{
-                    'bg-indigo-500 hover:bg-indigo-600 text-white': link.active,
-                    'bg-gray-500 hover:bg-gray-600 text-white': !link.active && link.url,
-                    'bg-gray-300 text-gray-600 cursor-not-allowed': !link.url
-                }"
-                v-html="link.label"></button>
-        </div>
-
+            + Create Post
+        </button>
     </div>
+
+    <!-- Modern Table -->
+    <div class="bg-white border border-gray-300 rounded-xl shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Content</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="(post, index) in posts.data" :key="post.id" class="hover:bg-gray-100 transition-all duration-300">
+                    <td class="px-6 py-4 text-gray-800 font-medium">
+                        {{ (posts.current_page - 1) * posts.per_page + index + 1 }}
+                    </td>
+                    <td class="px-6 py-4 text-gray-900 font-semibold">{{ post.title }}</td>
+                    <td class="px-6 py-4 text-gray-700">{{ limitText(post.content, 50) }}</td>
+                    <td class="px-6 py-4 flex space-x-3">
+                        <button @click="openViewModal(post)" class="text-blue-500 hover:text-blue-700"><i class="fa fa-eye"></i></button>
+                        <button @click="editPost(post)" class="text-yellow-500 hover:text-yellow-700"><i class="fa fa-edit"></i></button>
+                        <button @click="deletePost(post.id)" class="text-red-500 hover:text-red-700"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="showPagination && posts.links" class="flex justify-center items-center mt-6 space-x-2">
+        <button v-for="(link, index) in posts.links" :key="index" @click="fetchPosts(link.url)"
+            :disabled="!link.url"
+            class="px-4 py-2 rounded-lg transition-all duration-300"
+            :class="{
+                'bg-indigo-500 hover:bg-indigo-600 text-white shadow-md': link.active,
+                'bg-gray-400 hover:bg-indigo-500 text-white': !link.active && link.url,
+                'bg-gray-300 text-gray-600 cursor-not-allowed': !link.url
+            }"
+            v-html="link.label">
+        </button>
+    </div>
+
+
+    <!-- View Modal -->
+    <transition name="fade">
+        <div v-if="isViewModalOpen" class="fixed inset-0 backdrop-brightness-50 flex items-center justify-center p-6" @click.self="closeViewModal">
+            <transition name="slide">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Post Details</h3>
+                        <button @click="closeViewModal" class="text-rose-500 hover:text-rose-700">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700">ID</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ selectedPost.id }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700">Title</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ selectedPost.title }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700">Content</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ selectedPost.content }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button @click="closeViewModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </transition>
+        </div>
+    </transition>
+</div>
+
 </template>
 
 <script>
@@ -128,83 +104,25 @@ export default {
     data() {
         return {
             posts: {},
-
-            form: {
-                title: "",
-                content: "",
-            },
-
-            errors: {},
+            showPagination: false,
+            isViewModalOpen: false, 
+            selectedPost: {}, 
         };
     },
 
     methods: {
         async fetchPosts(url = "/api/posts") {
-            const { data } = await axios.get(url);
-            this.posts = data;
+            const response = await axios.get(url);
+            this.posts = response.data.posts;
+            this.showPagination = response.data.showPagination;
         },
 
-        async savePost() {
-            try {
-
-                if (this.editMode) {
-                    const response = await axios.put(`/api/posts/${this.editId}`, this.form);
-                    this.editMode = false;
-                } else {
-                    const response = await axios.post("/api/posts", this.form);
-                }
-
-                this.form = {
-                    title: "",
-                    content: "",
-                }
-
-                if (this.editMode) {
-                    Toastify({
-                        text: "Post updated successfully",
-                        duration: 3000,
-                        newWindow: true,
-                        close: true,
-                        gravity: "top", 
-                        position: "right", 
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #00b4db, #0083b0)",
-                        },
-                    }).showToast();
-                } else {
-                    Toastify({
-                        text: "Post created successfully",
-                        duration: 3000,
-                        newWindow: true,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #2ab4db, #4d83b0)",
-                        },
-                    }).showToast();
-                }
-
-                this.fetchPosts();
-            } catch (error) {
-                if (error.response && error.response.data.errors) {
-                    this.errors = error.response.data.errors;
-                } else {
-                    console.error("Unexpected error:", error);
-                }
-            }
+        navigateToCreatePost() {
+            this.$router.push('/create-post');
         },
 
-        editPost( post ) {
-            this.form = {
-                title: post.title,
-                content: post.content
-            };
-
-            this.editId = post.id
-            this.editMode = true
+        editPost(post) {
+            this.$router.push({ path: '/create-post', query: { id: post.id } });
         },
 
         async deletePost(id) {
@@ -220,7 +138,7 @@ export default {
                 stopOnFocus: true,
                 style: {
                     background: "linear-gradient(to right, #ff6b6b, #f13)",
-                }            
+                },
             }).showToast();
             this.fetchPosts();
         },
@@ -231,6 +149,16 @@ export default {
             }
             return text;
         },
+
+        openViewModal(post) {
+            this.selectedPost = post; 
+            this.isViewModalOpen = true; 
+        },
+
+        closeViewModal() {
+            this.isViewModalOpen = false;
+            this.selectedPost = {}; 
+        },
     },
 
     mounted() {
@@ -238,3 +166,24 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+/* Fade Transition for Modal Background */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
+/* Slide Transition for Modal Content */
+.slide-enter-active, .slide-leave-active {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-enter-from, .slide-leave-to {
+    transform: translateY(-20px);
+    opacity: 0;
+}
+</style>

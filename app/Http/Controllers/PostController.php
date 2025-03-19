@@ -7,25 +7,23 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
-        return Post::latest()->paginate(8);
+        $posts = Post::latest()->paginate(8);
+
+        return response()->json([
+            'posts' => $posts,
+            'showPagination' => $posts->total() > 8
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+   
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validateData = $request->validate([
@@ -35,28 +33,27 @@ class PostController extends Controller
 
         $post = Post::create( $validateData ); 
 
-        return response()->json([$post = 201, 'message' => 'Post created successfully']);
+        return response()->json([
+            'post' => $post,
+            'message' => 'Post created successfully'
+        ], 201); 
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Post $post)
     {
         return $post;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
+    
+    public function edit($id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        return response()->json($post);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, Post $post)
     {
         $validateData = $request->validate([
@@ -69,9 +66,7 @@ class PostController extends Controller
         return response()->json([$post = 201]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(Post $post)
     {
         $post->delete();

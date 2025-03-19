@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 
-Route::view('/', 'posts');
+Route::prefix('api')->group(function () {
+    Route::resource('posts', PostController::class);
+});
+
+
+Route::get('/{any}', function () {
+    return view('posts');
+})->where('any', '.*');
