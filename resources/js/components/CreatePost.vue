@@ -1,12 +1,13 @@
 <template>
-     <!-- Create Button -->
+     <!-- Back -->
      <div class="mx-auto max-w-4xl mt-10">
-            <a href="javascript:history.back()"
-                class="bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 transition-all cursor-pointer"
-            >
-                <i class="fa fa-arrow-left mr-2"></i> Back
-            </a>
-        </div>
+        <a href="javascript:history.back()"
+            class="bg-gradient-to-r from-pink-400 via-rose-500 to-pink-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-gradient-to-r hover:from-rose-500 hover:via-pink-600 hover:to-pink-700 transition-all cursor-pointer"
+        >
+            <i class="fa fa-arrow-left mr-2"></i> Back
+        </a>
+    </div>
+
 
     <div class="max-w-4xl mx-auto mt-10 p-8 bg-white shadow-lg rounded-2xl transition-all duration-300">
         <!-- Heading -->
